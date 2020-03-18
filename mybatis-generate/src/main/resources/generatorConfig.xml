@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<!-- 这个文件主要用于基于 数据库 自动生成 model、repository、xml 文件的相关配置 -->
+<generatorConfiguration>
+    <properties resource="generator.properties"/>
+
+    <classPathEntry location="${driver}"/>
+
+    <!--
+    关于 targetRuntime >>
+        更新的时候使用 MyBatis3 避免覆盖 cust.xml
+        新表使用 IntrospectedTableMyBatis, 会多生成一个自定义的 xml.
+    -->
+    <context id="MySqlTables" targetRuntime="com.github.liuanxin.mybatis.code.IntrospectedTableMyBatis">
+        <!--定义 mysql 的转义符, 结合 table 标签的 delimitIdentifiers, delimitAllColumns 使用-->
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
+        <!-- 序列化, 生成精简的 set get, 从表上获取注解 -->
+        <plugin type="com.github.liuanxin.mybatis.plugin.CustomSerializablePlugin"/>
+        <plugin type="com.github.liuanxin.mybatis.plugin.SetGetPlugin"/>
+        <plugin type="com.github.liuanxin.mybatis.plugin.CustomModelCommentPlugin"/>
+        <!-- 生成缓存(此 xml 中所有的 sql 都会走缓存), 注解: @CacheNamespace(implementation = RedisCache.class ...) -->
+        <!--<plugin type="com.github.liuanxin.mybatis.plugin.CustomCachePlugin">
+            <property name="cache_type" value="com.github.liuanxin.caches.RedisCache"/>
+            <!- - <property name="cache_flushInterval" value="7200000"/>
+            <property name="cache_size" value="1024"/>
+            <property name="cache_readOnly" value="true"/>
+            <property name="cache_blocking" value="true"/>
+            <property name="cache_eviction" value="LRU"/> - ->
+        </plugin>-->
+        <!--
+        上面的配置最终会在 xml 中生成下面的配置
+        <cache eviction="LRU" flushInterval="7200000" readOnly="false"
+            size="1024" blocking="true" type="com.github.liuanxin.caches.RedisCache" />
+
+        见: http://www.mybatis.org/mybatis-3/sqlmap-xml.html#cache
+
+        type : 基础缓存类型, 默认是 PerpetualCache(就是一个 HashMap) ==> 注解对应的是 implementation
+        flushInterval : 缓存刷新间隔. 单位: 毫秒. 默认情况是不设置, 也就是没有刷新间隔, 缓存仅仅调用语句时刷新
+        size : 缓存条数, 默认是 1024       ==> 注解的默认值是 1024
+        readOnly : 是否只读, 默认是 false  ==> 注解对应的是 readWrite, 默认是 true
+        blocking : 操作时是否阻塞, 默认是 false
+        eviction : 排除算法缓存类型. 默认是 LRU, 还有 FIFO
+            LRU   Least Recently Used 最近最少使用的: 移除最长时间不被使用的对象
+            FIFO  First In First Out 先进先出: 按对象进入缓存的顺序来移除它们
+            SOFT  软引用: 移除基于垃圾回收器状态和软引用规则的对象
+            WEAK  弱引用: 更积极地移除基于垃圾收集器状态和弱引用规则的对象
+
+        org.apache.ibatis.builder.xml.XMLMapperBuilder#configurationElement
+        org.apache.ibatis.annotations.CacheNamespace
+        -->
+
+        <!-- 抑制 mybatis 生成的注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <jdbcConnection driverClass="${class}" connectionURL="${conn}" userId="${user_name}" password="${password}"/>
+
+        <!-- 生成的实体类 -->
+        <javaModelGenerator targetPackage="${modelPackage}" targetProject="${targetPath}/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成的 xml 配置 -->
+        <sqlMapGenerator targetPackage="${xmlDir}" targetProject="${targetPath}/resources"/>
+
+        <!-- 生成的 java 实现 -->
+        <javaClientGenerator type="mapper" targetPackage="${mapperPackage}" targetProject="${targetPath}/java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+
+<!--        <table schema="t" tableName="t_banner" domainObjectName="Banner" escapeWildcards="true"-->
+<!--               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"-->
+<!--               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+        <!--<table schema="t" tableName="t_course_payed_record" domainObjectName="CoursePayedRecord" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+        <!--<table schema="t" tableName="t_course" domainObjectName="Course" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+        <!--<table schema="t" tableName="t_user_wallet" domainObjectName="UserWallet" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+      <!--  <table schema="t" tableName="t_bill" domainObjectName="Bill" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+    <!--    <table schema="t" tableName="t_user_profit" domainObjectName="UserProfit" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+     <!--   <table schema="t" tableName="t_user_authenticate" domainObjectName="UserAuthenticate" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+       <!-- <table schema="t" tableName="t_seller" domainObjectName="Seller" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+        <!--<table schema="t" tableName="t_seller_profit" domainObjectName="SellerProfit" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+        <!--<table schema="t" tableName="t_company" domainObjectName="Company" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>
+-->
+        <!--<table schema="t" tableName="t_user_seller" domainObjectName="UserSeller" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+       <!-- <table schema="t" tableName="t_teacher" domainObjectName="Teacher" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+       <!-- <table schema="t" tableName="t_knowledge_circle" domainObjectName="KnowledgeCircle" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>
+-->
+        <table schema="t" tableName="t_user_activity" domainObjectName="UserActivity" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>
+
+        <!--<table schema="t" tableName="t_activity_comment" domainObjectName="ActivityComment" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+        <!--<table schema="t" tableName="t_activity_extra" domainObjectName="ActivityExtra" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+        <!--<table schema="t" tableName="t_sms_config" domainObjectName="SmsConfig" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+        <!--<table schema="t" tableName="t_sms_template" domainObjectName="SmsTemplate" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+        <!--<table schema="t" tableName="t_sms_config" domainObjectName="SmsConfig" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+
+
+       <!-- <table schema="t" tableName="t_kcu" domainObjectName="Kcu" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+
+       <!--   <table schema="t" tableName="t_withdraw_record" domainObjectName="WithdrawRecord" escapeWildcards="true"
+                 enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+                 enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+      <!--  <table schema="t" tableName="t_wxpay_record" domainObjectName="WxPayRecord" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>
+-->
+<!--        <table schema="t" tableName="t_imgs" domainObjectName="Imgs" escapeWildcards="true"-->
+<!--               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"-->
+<!--               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+<!--        <table schema="t" tableName="t_live_pay_record" domainObjectName="LivePayRecord" escapeWildcards="true"-->
+<!--               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"-->
+<!--               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+ <!--       <table schema="t" tableName="t_live_record" domainObjectName="LiveRecord" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+   <!--     <table schema="t" tableName="t_user_teacher" domainObjectName="UserTeacher" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+    <!--    <table schema="t" tableName="t_course_collect" domainObjectName="CourseCollect" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+ <!-- <table schema="t" tableName="t_feedback" domainObjectName="Feedback" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+<!--<table schema="t" tableName="t_wx_config" domainObjectName="WxConfig" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+<!--        <table schema="t" tableName="t_user_id" domainObjectName="UserId" escapeWildcards="true"-->
+<!--               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"-->
+<!--               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+  <!--      <table schema="t" tableName="t_user_info" domainObjectName="UserInfo" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+  <!--    <table schema="t" tableName="t_sys_user" domainObjectName="SysUser" escapeWildcards="true"
+               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+
+<!--        <table schema="t" tableName="t_video" domainObjectName="Video" escapeWildcards="true"-->
+<!--               enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"-->
+<!--               enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>-->
+    </context>
+</generatorConfiguration>

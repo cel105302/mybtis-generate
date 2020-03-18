@@ -1,0 +1,94 @@
+
+** 使用
+
++ 设置 ~var.properties~ 文件内容, 配置成要生成代码的相关数据库连接信息  
++ 运行 ~com.github.liuanxin.SqlGenTest~ 类. 测试类将会输出类似下面的 xml. 如果是直接写的上面的配置, 可以不需要这两步
+#+BEGIN_SRC xml
+<table tableName="t_system_config" domainObjectName="SystemConfig" escapeWildcards="true"
+		 enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true"
+		 enableSelectByExample="true" delimitIdentifiers="true" delimitAllColumns="true"/>
+#+END_SRC
+
++ 将需要生成代码的相关配置复制到 ~generatorConfig.xml~ 文件的最底下
++ 设置 ~generator.properties~ 文件, 修改数据库配置包名等
+
+运行 ~mvn clean compile~ 生成源码
+
+
+** 说明
+
+本插件基于 mybatis generator 二次开发. 在原有的基础上生成了一些额外的东西(如新生成一个空的 xml 实现和将表注释写到 model 中), 去掉了一些东西(如 model 的 set get 方法, 改由 lombok 生成)
+
+: xml 会生成 5 个文件, 如果全注解(不生成 xml)的话将会生成 4 个(多一个 SqlProvider.java, 两个 xml 没有了)
+: model      : 跟数据库表关联的对象
+: example    : 操作数据库的 example 对象, 跟上面的平级
+: repository : 接口文件
+: SqlProvider: 实现了 xml 的 example 功能, 如果全注解, 将不生成下面两个文件而会有这个文件
+: xml        : 自动生成的 xml 文件(sql 语句), 主要是上面接口文件的实现
+: custom xml : 一个空的 xml 文件, 主要用来添加项目后期自己编写的 sql
+
+在 ~generatorConfig.xml~ 中有这么一段配置
+#+BEGIN_SRC xml
+<javaClientGenerator type="annotatedMapper" targetPackage="${xxx}.repository" targetProject="${yyy}/java">
+    <property name="enableSubPackages" value="true" />
+</javaClientGenerator>
+#+END_SRC
+
+上面的 type 默认有下面这四种生成方式(无视大小写)
+: annotatedMapper > 全部生成 Java 代码, example 的 sql 会有一个 SqlProvider 来生成
+: mixedMapper     > 一半 Java 代码, 一半 xml, 简单 sql 由注解生成, example 的 sql 由 xml 生成
+: xmlMapper       > 生成 xml 实现
+: mapper          > 生成 xml 实现, 跟 xmlMapper 一样
+
+添加了两种(无视大小写), *建议日常使用 alias 即可, 如果想将字段置成空值, 使用 Empty 将需要手写 sql 了*
+: alias           > 生成 xml 实现, 每个表会在 sql 和 result map 中多加一个别名, 供多表时使用
+: aliasAndEmpty   > 除了上面的别名, 使用 Ognl 类的方法而不止是用 != 来进行比较
+
+
+** 多用 example
+
+如果我们想要生成如下的 sql 语句:
+#+BEGIN_SRC sql
+select xxx from `t_user` where user_name = 'sz' and level > 1 and verify in (1, 2, 3)
+#+END_SRC
+
+可以用纯 Java 代码的方式来构建 example 以达到上面的效果
+#+BEGIN_SRC java
+UserExample userExample = new UserExample();
+userExample.or().andUserNameEqualTo("sz").andLevelGreaterThan(1).andVerifyIn(Arrays.asList(1, 2, 3));
+userMapper.selectByExample(userExample);
+#+END_SRC
+
+同样的 where 条件也可以用在 update 和 delete 上
+#+BEGIN_SRC java
+UserExample userExample = new UserExample();
+userExample.or().andUserNameNameEqualTo("sz").andLevelGreaterThan(1).andVerifyIn(Arrays.asList(1, 2, 3));
+
+User user = new User();
+user.setPassword("abc");
+userMapper.updateByExampleSelective(user, userExample);
+#+END_SRC
+
+上面将会生成如下的 sql 语句
+#+BEGIN_SRC sql
+update `t_user` set password = 'abc' where user_name = 'sz' and level > 1 and verify in (1, 2, 3)
+#+END_SRC
+
+如果要生成 or 语句, 可以像这样
+#+BEGIN_SRC java
+UserExample userExample = new UserExample();
+userExample.or().andUserNameEqualTo("xxx").andCreateTimeLessThan(new Date());
+userExample.or().andEmailEqualTo("xxx").andCertIsNotNull();
+userExample.or().andPhoneEqualTo("xxx").andVerifyIn(Arrays.asList(1, 2, 3));
+userMapper.selectByExample(userExample);
+#+END_SRC
+
+生成的 sql 如下
+#+BEGIN_SRC sql
+select xx from `t_user` 
+where (name = 'xx' and create_time < '201x-xx-xx xx:xx:xx')
+   or (email = 'xxx' and `cert` is not null)
+   or (phone = 'xxx' and verify in (1, 2, 3))
+#+END_SRC
+
+如果要生成条件复杂的 or 语句(比如在一个 and 条件里面还有 or), exmple 将会无法实现, 此时就需要手写 sql 了
